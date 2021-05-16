@@ -30,7 +30,7 @@ module.exports.sinhviendangbaiviet = (req, res) => {
         tenanh.push(tentmp);
     });
     form.on('end', function() {
-        var thoigiandang = moment().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss')
+        var thoigiandang = moment().format('YYYY-MM-DD HH:mm:ss')
         var mabaiviet = md5(Date.now() + dataform[0] + req.session.sinhvien.email + thoigiandang)
         BaiViet.create({
             mabaiviet: mabaiviet,
