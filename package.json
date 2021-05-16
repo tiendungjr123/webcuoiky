@@ -4,6 +4,7 @@
   "description": "Các cài đặt khi xây dựng web   - npm init -y   - npm install express body-parser  - npm install nodemon    - npm install ejs         - npm install mongoose  - npm install mongodb  - npm install passport  - npm install passport-google-oauth2  - npm install express-session  - npm install parser  - npm install --save auto-link  - npm install formidable  - npm install bcrypt  - npm install md5  - npm install http  - npm install socket.io",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon --inspect index.js"
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
