@@ -15,13 +15,13 @@ module.exports.sinhviendangbaiviet = (req, res) => {
     var dataform = [];
     var tenanh = [];
     form.parse(req, function(err, field, files) {
-        const {noidung, idVideoYoutube} = field;
+        const { noidung, idVideoYoutube } = field;
         dataform.push(noidung, idVideoYoutube)
-        
-        
+
+
     })
 
-    
+
     // Luu hinh anh 
     form.on('fileBegin', function(name, file) {
         var now = Date.now();
@@ -30,7 +30,7 @@ module.exports.sinhviendangbaiviet = (req, res) => {
         tenanh.push(tentmp);
     });
     form.on('end', function() {
-        var thoigiandang = moment().format('YYYY-MM-DD HH:mm:ss')
+        var thoigiandang = moment().format('YYYY-MM-DD HH:mm:ss').tz('Asia/Ho_Chi_Minh')
         var mabaiviet = md5(Date.now() + dataform[0] + req.session.sinhvien.email + thoigiandang)
         BaiViet.create({
             mabaiviet: mabaiviet,
@@ -41,12 +41,12 @@ module.exports.sinhviendangbaiviet = (req, res) => {
             hinhanh: tenanh
         });
 
-        TaiKhoanSinhVien.findOne({"email": req.session.sinhvien.email}, (err, thongtinsinhvien) => {
-            if(err){
+        TaiKhoanSinhVien.findOne({ "email": req.session.sinhvien.email }, (err, thongtinsinhvien) => {
+            if (err) {
                 //truờng hợp lỗi quay về trang đăng nhập
                 res.redirect('/dangxuattaikhoansinhvien')
-            }else{
-                res.render("layout/baivietmoi", {thongtinsinhvien: thongtinsinhvien, noidung: dataform[0], thoigiandang: thoigiandang, hinhanh: tenanh, idVideoYoutube: dataform[1], mabaiviet});
+            } else {
+                res.render("layout/baivietmoi", { thongtinsinhvien: thongtinsinhvien, noidung: dataform[0], thoigiandang: thoigiandang, hinhanh: tenanh, idVideoYoutube: dataform[1], mabaiviet });
             }
         });
     });
@@ -56,7 +56,7 @@ module.exports.xoabaiviet = (req, res) => {
     var form = new formidable.IncomingForm();
     var dataform = [];
     form.parse(req, function(err, field, files) {
-        const {mabaiviet} = field;
+        const { mabaiviet } = field;
         dataform.push(mabaiviet)
     })
 
@@ -66,7 +66,7 @@ module.exports.xoabaiviet = (req, res) => {
             if (err) {
                 console.log(err);
             } else {
-                BinhLuan.deleteMany({ 'mabaiviet': dataform[0] }, (err) =>{
+                BinhLuan.deleteMany({ 'mabaiviet': dataform[0] }, (err) => {
                     if (err) {
                         console.log(err);
                     } else {
@@ -82,104 +82,104 @@ module.exports.chinhsuabaiviet = (req, res) => {
     var form = new formidable.IncomingForm();
     var dataform = [];
     form.parse(req, function(err, field, files) {
-        const {mabaiviet, noidungbaiviet, idVideoYoutube} = field;
+        const { mabaiviet, noidungbaiviet, idVideoYoutube } = field;
         dataform.push(mabaiviet, noidungbaiviet, idVideoYoutube)
     })
     form.on('end', function() {
-        TaiKhoanSinhVien.findOne({"email": req.session.sinhvien.email}, (err, thongtinsinhvien) => {
-            if(err){
+        TaiKhoanSinhVien.findOne({ "email": req.session.sinhvien.email }, (err, thongtinsinhvien) => {
+            if (err) {
                 //truờng hợp lỗi quay về trang đăng nhập
                 res.redirect('/dangxuattaikhoansinhvien')
-            }else{
-                BaiViet.findOne({mabaiviet: dataform[0]}, (err, baiviet) => {
-                    BaiViet.updateOne({mabaiviet:  dataform[0]}, { $set: { noidung: dataform[1], idVideoYoutube: dataform[2]}}, (err) => {
-                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find().sort({thoigiandang: -1}), BinhLuan.find().sort({thoigiandang: 1})])
-                        .then(data => {
-                            const [tatcasinhvien, tatcataikhoan, tatcabaiviet, tatcabinhluan] = data
-                            res.render("layout/baivietmoi", {thongtinsinhvien: thongtinsinhvien,tatcataikhoan,tatcasinhvien,tatcabinhluan, noidung: dataform[1], thoigiandang: baiviet.thoigiandang, hinhanh: baiviet.hinhanh, idVideoYoutube: dataform[2], mabaiviet: dataform[0]});
-                        })
-                        .catch(err => {
-                            res.render('dangnhap', {errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại"})
-                        })
+            } else {
+                BaiViet.findOne({ mabaiviet: dataform[0] }, (err, baiviet) => {
+                    BaiViet.updateOne({ mabaiviet: dataform[0] }, { $set: { noidung: dataform[1], idVideoYoutube: dataform[2] } }, (err) => {
+                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find().sort({ thoigiandang: -1 }), BinhLuan.find().sort({ thoigiandang: 1 })])
+                            .then(data => {
+                                const [tatcasinhvien, tatcataikhoan, tatcabaiviet, tatcabinhluan] = data
+                                res.render("layout/baivietmoi", { thongtinsinhvien: thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabinhluan, noidung: dataform[1], thoigiandang: baiviet.thoigiandang, hinhanh: baiviet.hinhanh, idVideoYoutube: dataform[2], mabaiviet: dataform[0] });
+                            })
+                            .catch(err => {
+                                res.render('dangnhap', { errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại" })
+                            })
                     })
                 })
             }
         });
     });
-    
+
 }
 
 module.exports.loadbaiviet = (req, res) => {
     var form = new formidable.IncomingForm();
     var dataform = [];
     form.parse(req, function(err, field, files) {
-        const {solanloadbaiviet, trang} = field;
+        const { solanloadbaiviet, trang } = field;
         dataform.push(solanloadbaiviet, trang)
     })
     form.on('end', function() {
         //lấy email sinhvien  đang đăng nhập bằng sesstion
         let email = req.session.sinhvien.email
         let chucvu = req.session.sinhvien.chucvu
-        if(dataform[1] == "trangchu"){
-            if(chucvu == "sinhvien")
-                TaiKhoanSinhVien.findOne({"email": email}, (err, thongtinsinhvien) => {
-                    if(err){
+        if (dataform[1] == "trangchu") {
+            if (chucvu == "sinhvien")
+                TaiKhoanSinhVien.findOne({ "email": email }, (err, thongtinsinhvien) => {
+                    if (err) {
                         comsole.log("lỗi")
-                    }else{
-                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find().sort({thoigiandang: -1}).skip(Number(dataform[0]*10)).limit(10), BinhLuan.find().sort({thoigiandang: 1})])
+                    } else {
+                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find().sort({ thoigiandang: -1 }).skip(Number(dataform[0] * 10)).limit(10), BinhLuan.find().sort({ thoigiandang: 1 })])
                             .then(data => {
                                 const [tatcasinhvien, tatcataikhoan, tatcabaiviet, tatcabinhluan, thongbao] = data
-                                res.render('layout/baiviet', {thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabaiviet, tatcabinhluan})
+                                res.render('layout/baiviet', { thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabaiviet, tatcabinhluan })
                             })
                             .catch(err => {
-                                res.render('dangnhap', {errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại"})
+                                res.render('dangnhap', { errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại" })
                             })
                     }
                 })
-            else{
-                TaiKhoan.findOne({"email": email}, (err, thongtinsinhvien) => {
-                    if(err){
+            else {
+                TaiKhoan.findOne({ "email": email }, (err, thongtinsinhvien) => {
+                    if (err) {
                         comsole.log("lỗi")
-                    }else{
-                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find().sort({thoigiandang: -1}).skip(Number(dataform[0]*10)).limit(10), BinhLuan.find().sort({thoigiandang: 1})])
+                    } else {
+                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find().sort({ thoigiandang: -1 }).skip(Number(dataform[0] * 10)).limit(10), BinhLuan.find().sort({ thoigiandang: 1 })])
                             .then(data => {
                                 const [tatcasinhvien, tatcataikhoan, tatcabaiviet, tatcabinhluan] = data
-                                res.render('layout/baiviet', {thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabaiviet, tatcabinhluan})
+                                res.render('layout/baiviet', { thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabaiviet, tatcabinhluan })
                             })
                             .catch(err => {
-                                res.render('dangnhap', {errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại"})
+                                res.render('dangnhap', { errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại" })
                             })
                     }
                 })
             }
-        }else{
-            if(chucvu == "sinhvien")
-                TaiKhoanSinhVien.findOne({"email": email}, (err, thongtinsinhvien) => {
-                    if(err){
+        } else {
+            if (chucvu == "sinhvien")
+                TaiKhoanSinhVien.findOne({ "email": email }, (err, thongtinsinhvien) => {
+                    if (err) {
                         comsole.log("lỗi")
-                    }else{
-                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find({email:dataform[1]}).sort({thoigiandang: -1}).skip(Number(dataform[0]*10)).limit(10), BinhLuan.find().sort({thoigiandang: 1})])
+                    } else {
+                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find({ email: dataform[1] }).sort({ thoigiandang: -1 }).skip(Number(dataform[0] * 10)).limit(10), BinhLuan.find().sort({ thoigiandang: 1 })])
                             .then(data => {
                                 const [tatcasinhvien, tatcataikhoan, tatcabaiviet, tatcabinhluan, thongbao] = data
-                                res.render('layout/baiviet', {thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabaiviet, tatcabinhluan})
+                                res.render('layout/baiviet', { thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabaiviet, tatcabinhluan })
                             })
                             .catch(err => {
-                                res.render('dangnhap', {errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại"})
+                                res.render('dangnhap', { errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại" })
                             })
                     }
                 })
-            else{
-                TaiKhoan.findOne({"email": email}, (err, thongtinsinhvien) => {
-                    if(err){
+            else {
+                TaiKhoan.findOne({ "email": email }, (err, thongtinsinhvien) => {
+                    if (err) {
                         comsole.log("lỗi")
-                    }else{
-                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find({email:dataform[1]}).sort({thoigiandang: -1}).skip(Number(dataform[0]*10)).limit(10), BinhLuan.find().sort({thoigiandang: 1})])
+                    } else {
+                        Promise.all([TaiKhoanSinhVien.find(), TaiKhoan.find(), BaiViet.find({ email: dataform[1] }).sort({ thoigiandang: -1 }).skip(Number(dataform[0] * 10)).limit(10), BinhLuan.find().sort({ thoigiandang: 1 })])
                             .then(data => {
                                 const [tatcasinhvien, tatcataikhoan, tatcabaiviet, tatcabinhluan] = data
-                                res.render('layout/baiviet', {thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabaiviet, tatcabinhluan})
+                                res.render('layout/baiviet', { thongtinsinhvien, tatcataikhoan, tatcasinhvien, tatcabaiviet, tatcabinhluan })
                             })
                             .catch(err => {
-                                res.render('dangnhap', {errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại"})
+                                res.render('dangnhap', { errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại" })
                             })
                     }
                 })
