@@ -21,10 +21,11 @@ app.set('views', __dirname + '/views');
 
 
 //cài đặt session
-app.use(session({ 
+app.use(session({
     secret: 'anything',
     resave: true,
-    saveUninitialized: true}));
+    saveUninitialized: true
+}));
 
 //Cài đặt liên quan đến đăng nhập bằng google
 app.use(passport.initialize());
@@ -47,7 +48,7 @@ passport.use(new GoogleStrategy({
 ));
 
 //Lỗi khi đăng nhập bằng auth google
-app.get('/failed', async (req, res) => { res.status(404).send('erreur authentification') })
+app.get('/failed', async(req, res) => { res.status(404).send('erreur authentification') })
 
 
 //Ngoại trừ các route liên quan đến gg thì tất cả các route đều được xử lý tại ./routes/Routes.js
@@ -67,7 +68,7 @@ app.get('/auth/google',
  - Nếu đã có thông tin đăng nhập thì tạo sesstion
  */
 app.get('/auth/google/callback',
-    passport.authenticate('google', {failureRedirect: '/failed' }),
+    passport.authenticate('google', { failureRedirect: '/failed' }),
     function(req, res) {
         res.set('Content-Type', 'text/html')
         var email = req.user.email //lấy email
@@ -77,32 +78,32 @@ app.get('/auth/google/callback',
         //kiểm tra đuôi mail có phải student.tdtu.edu.vn không
         //Nếu phải thì tiếp tục đăng nhập
         //Không thì chuyển người dùng về trang đăng nhập và thông báo cho người dùng
-        if(duoiemail === "student.tdtu.edu.vn"){
+        if (duoiemail === "student.tdtu.edu.vn") {
 
             //lấy kí tự đầu tiên trong dãy mssv
             var masokhoa = mssv.charAt(0);
             //lấy nằm sinh viên nhập học
             var namhoc = 20 + mssv.charAt(1) + mssv.charAt(2);
             //tên của bạn trong email
-            var hovaten  = req.user.displayName
+            var hovaten = req.user.displayName
 
             //kiểm tra thông tin ngừoi dùng này có trong hệ thống chưa
             //có thì chỉ cần tạo sesstion và chuyển người dùng sang trang chủ
             //không thì cập nhật thông tin người dùng vào datebase, tạo sesstion và chuyển người dùng sang trang chủ
-            TaiKhoanSinhVien.findOne({"email": email})
+            TaiKhoanSinhVien.findOne({ "email": email })
                 .then(acc => {
                     //nếu không tìm được sinh viên nào thì acc = null
-                    if(acc){
+                    if (acc) {
                         req.session.sinhvien = {
                             email: acc.email,
                             chucvu: "sinhvien"
                         }
                         res.redirect('/trangchu')
-                    }else{
+                    } else {
                         //Từ bảng MaSoKhoa (database) tìm masokhoa từ đó lấy ra tên khoa
                         MasoKhoa.findOne({ "maso": masokhoa }, (err, data) => {
                             if (err) {
-                                res.render('dangnhap', {errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại"})
+                                res.render('dangnhap', { errorGG: "Lỗi hệ thống, vui lòng đăng nhập lại" })
                             } else {
                                 //data chứa dữ liệu được trả về từ database (ở đây là thông tin của 1 khoa gồm id, maso, tenkhoa)
                                 var tenkhoa = data.tenkhoa
@@ -126,10 +127,10 @@ app.get('/auth/google/callback',
                         })
                     }
                 })
-        }else{
-            res.render('dangnhap', {errorGG: "Bạn phải dùng email sinh viên Đại học Tôn Đức Thắng để đăng nhập vào hệ thống"})
+        } else {
+            res.render('dangnhap', { errorGG: "Bạn phải dùng email sinh viên Đại học Tôn Đức Thắng để đăng nhập vào hệ thống" })
         }
-        
+
 
     });
 
@@ -147,21 +148,19 @@ app.use((req, res) => {
 io.on('connection', (socket) => {
     socket.on('message', function(msg) {
         io.emit('message', msg);
-      });
-  });
+    });
+});
 
 //kết nối với cở sở dữ liệu (mongo atlas)
 mongoose.connect('mongodb+srv://doanwebnangcao:doan123456@doanwebnangcao.0runb.mongodb.net/doanwebnangcao?retryWrites=true&w=majority', {
         useNewUrlParser: true,
         useUnifiedTopology: true
-})
-.then(() => {
-    //chỉ khởi chạy server khi đã kết được với database
-    const PORT = process.env.PORT || 3000;
-    http.listen(PORT, () => {
-        console.log('App listening on port: http://localhost:' + PORT)
     })
-})
-.catch(e => console.log('Không thể kết nối với cở sở dữ liệu ' ))
-
-
+    .then(() => {
+        //chỉ khởi chạy server khi đã kết được với database
+        const PORT = process.env.PORT || 3000;
+        http.listen(process.env.PORT, () => {
+            console.log('App listening on port: http://localhost:' + PORT)
+        })
+    })
+    .catch(e => console.log('Không thể kết nối với cở sở dữ liệu '))
